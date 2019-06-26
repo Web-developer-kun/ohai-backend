@@ -39,7 +39,6 @@ const createSessions = (user) => {
   const token = signToken(email);
   return setToken(token, id)
         .then(() => {
-          console.log("Success?");
           return { success: 'true', userId: id, token };
         })
         .catch(err => console.log(err));
@@ -48,10 +47,10 @@ const createSessions = (user) => {
 const findUser = (email, password, User, bcrypt, req, res) => {
   User.findOne({email: email}, (err, user) => {
       if(!user){
-        console.log("Invalid user");
+        return res.json("Invalid User");
       } else {
         bcrypt.compare(password, user.hash, function(err, result) {
-         if (err) console.log(err);
+         if (err) return res.json(err);
          if(result){
            Promise.resolve(createSessions(user))
            .then(session => res.json(session))

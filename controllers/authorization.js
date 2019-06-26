@@ -1,15 +1,15 @@
-const redisClient = require('./signin').redisClient;
+const redis = require('redis');
+const redisClient = redis.createClient(6379, 'localhost');
 
 const isAuthenticated = (req, res, next) => {
   const { authorization } = req.headers;
   if(!authorization){
-    res.status(401).json("Unauthorized")
+    res.json("Unauthorized")
   }
-  return redisCLient.get(authorization, (err, reply) => {
+  return redisClient.get(authorization, (err, reply) => {
     if(err || !reply){
-      return res.status(401).json("Unauthorized there was no reply");
+      return res.json("Unauthorized there was no reply");
     }
-    console.log("Authorized");
     return next();
   })
 }
