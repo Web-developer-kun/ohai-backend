@@ -35,8 +35,9 @@ const handleRegister = (req, res, User, bcrypt) => {
     Promise.resolve(newUser.save((err) => {
       if(err) console.log(err);
     })).then(() => {
-      createSessions(newUser);
+      return createSessions(newUser);
     })
+    .then(session =>{ res.json(session) });
   }).catch(err => res.status(400).json('unable to register'));
 }
 
