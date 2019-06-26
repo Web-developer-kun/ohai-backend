@@ -1,4 +1,25 @@
 const jwt = require('jsonwebtoken');
+const redis = require('redis');
+const redisClient = redis.createClient(6379, 'localhost');
+
+const signToken = (email) => {
+  const jwtPayload = { email };
+  return jwt.sign(jwtPayload, 'JWT-SECRET', {'expiresIn': '2 days'});
+}
+
+const setToken = (token, id) => {
+  return Promise.resolve(redisClient.set(token, id));
+}
+
+const createSessions = (user) => {
+  const { email, _id } = user;
+  const token = signToken(email);
+  return setToken(token, _id.toString())
+          .then(() => {
+            return { success: 'true', userId: _id.toString(), token}
+          })
+          .catch(err => console.log(err))
+}
 
 const handleRegister = (req, res, User, bcrypt) => {
   const { email, password } = req.body;
@@ -10,8 +31,11 @@ const handleRegister = (req, res, User, bcrypt) => {
       email: email,
       hash: hash
     });
-    newUser.save((err) => {
+
+    Promise.resolve(newUser.save((err) => {
       if(err) console.log(err);
+    })).then(() => {
+      createSessions(newUser);
     })
   }).catch(err => res.status(400).json('unable to register'));
 }

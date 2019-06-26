@@ -7,11 +7,12 @@ const handleSignIn = (req, res, User, bcrypt) => {
   }
     User.findOne({email: email}, (err, user) => {
       if(!user){
-        console.log("Invalid user");
+        return res.send('Invalid Credentials');
       } else {
-        bcrypt.compare(password, user.hash, function(err, result) {
+        bcrypt.compare(password, user.hash, (err, match) => {
          if (err) console.log(err);
-         if(result) return res.send(user);
+         if(match) return res.send(user);
+         if(!match) return res.send('Invalid Credentials');
        });
       }
     })
