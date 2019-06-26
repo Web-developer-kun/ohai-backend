@@ -33,7 +33,7 @@ const handleRegister = (req, res, User, bcrypt) => {
     });
 
     Promise.resolve(newUser.save((err) => {
-      if(err) console.log(err);
+      if(err) return res.json(err);
     })).then(() => {
       return createSessions(newUser);
     })
