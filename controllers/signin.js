@@ -5,10 +5,8 @@ const redisClient = redis.createClient(6379, 'localhost');
 const handleSignIn = (req, res, User, bcrypt) => {
   const { email, password } = req.body;
   const { authorization } = req.headers;
-
-  if(!email || !password) res.send('incorrect form submission');
   if(authorization){
-    getAuthTokenId(req, res);
+    return getAuthTokenId(req, res);
   } else {
     return findUser(email, password, User, bcrypt, req, res);
   }
@@ -23,25 +21,6 @@ const getAuthTokenId = (req, res) => {
       return res.json({id: reply});
     }
   })
-}
-
-const signToken = (email) => {
-   const jwtPayload = { email };
-   return jwt.sign(jwtPayload, 'JWT-SECRET', {'expiresIn': '2 days'});
-}
-
-const setToken = (token, id) => {
-  return Promise.resolve(redisClient.set(token, id))
-}
-
-const createSessions = (user) => {
-  const { email, id } = user;
-  const token = signToken(email);
-  return setToken(token, id)
-        .then(() => {
-          return { success: 'true', userId: id, token };
-        })
-        .catch(err => console.log(err));
 }
 
 const findUser = (email, password, User, bcrypt, req, res) => {
@@ -59,6 +38,25 @@ const findUser = (email, password, User, bcrypt, req, res) => {
        });
       }
     })
+}
+
+const createSessions = (user) => {
+  const { email, id } = user;
+  const token = signToken(email);
+  return setToken(token, id)
+        .then(() => {
+          return { success: 'true', userId: id, token };
+        })
+        .catch(err => console.log(err));
+}
+
+const signToken = (email) => {
+   const jwtPayload = { email };
+   return jwt.sign(jwtPayload, 'JWT-SECRET', {'expiresIn': '2 days'});
+}
+
+const setToken = (token, id) => {
+  return Promise.resolve(redisClient.set(token, id))
 }
 
 module.exports = {
