@@ -2,13 +2,30 @@ const jwt = require('jsonwebtoken');
 const redis = require('redis');
 const redisClient = redis.createClient(6379, 'localhost');
 
-const signToken = (email) => {
-  const jwtPayload = { email };
-  return jwt.sign(jwtPayload, 'JWT-SECRET', {'expiresIn': '2 days'});
-}
+const handleRegister = (req, res, User, bcrypt) => {
+  const { email, password } = req.body;
+  if(!email || !password){
+    Promise.reject('incorrect form submission');
+  }
+  const hash = bcrypt.hash(password, 10).then(hash => {
+    User.findOne({email: email}, (err, user) => {
+      if(user){
+        return res.json("User already exists");
+      } else {
+        const newUser = new User({
+          email: email,
+          hash: hash
+        });
 
-const setToken = (token, id) => {
-  return Promise.resolve(redisClient.set(token, id));
+        Promise.resolve(newUser.save((err) => {
+          if(err) return res.json(err);
+        })).then(() => {
+          return createSessions(newUser);
+        })
+        .then(session =>{ res.json(session) });
+      }
+    })
+  }).catch(err => res.status(400).json('unable to register'));
 }
 
 const createSessions = (user) => {
@@ -21,24 +38,13 @@ const createSessions = (user) => {
           .catch(err => console.log(err))
 }
 
-const handleRegister = (req, res, User, bcrypt) => {
-  const { email, password } = req.body;
-  if(!email || !password){
-    Promise.reject('incorrect form submission');
-  }
-  const hash = bcrypt.hash(password, 10).then(hash => {
-    const newUser = new User({
-      email: email,
-      hash: hash
-    });
+const signToken = (email) => {
+  const jwtPayload = { email };
+  return jwt.sign(jwtPayload, 'JWT-SECRET', {'expiresIn': '2 days'});
+}
 
-    Promise.resolve(newUser.save((err) => {
-      if(err) return res.json(err);
-    })).then(() => {
-      return createSessions(newUser);
-    })
-    .then(session =>{ res.json(session) });
-  }).catch(err => res.status(400).json('unable to register'));
+const setToken = (token, id) => {
+  return Promise.resolve(redisClient.set(token, id));
 }
 
 module.exports = {
