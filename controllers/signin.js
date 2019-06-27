@@ -26,7 +26,7 @@ const getAuthTokenId = (req, res) => {
 const findUser = (email, password, User, bcrypt, req, res) => {
   User.findOne({email: email}, (err, user) => {
       if(!user){
-        return res.json("Invalid User");
+        return res.json("Invalid login credentials");
       } else {
         bcrypt.compare(password, user.hash, function(err, result) {
          if (err) return res.json(err);
@@ -34,6 +34,8 @@ const findUser = (email, password, User, bcrypt, req, res) => {
            Promise.resolve(createSessions(user))
            .then(session => res.json(session))
            .catch(err => res.json(err));
+         } else if(!result){
+           res.json("Invalid login credentials");
          }
        });
       }
