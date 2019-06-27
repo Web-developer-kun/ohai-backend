@@ -24,7 +24,7 @@ mongoose.connect("mongodb://localhost:27017/ohaiDB", {useNewUrlParser: true});
 app.post('/signin', (req, res) => { signin.handleSignIn(req, res, User, bcrypt); })
 app.post('/register', (req, res) => { register.handleRegister(req, res, User, bcrypt); })
 app.get('/placeholder/:id', auth.isAuthenticated, (req, res) => { return res.json("Logged in and session authenticated")})
-app.get('/signout', (req, res) => { signout.handleSignOut(req, res) })
+app.post('/signout', (req, res) => { signout.handleSignOut(req, res) })
 
 app.listen(3000, (req, res) => {
   console.log("Server running on port 3000");
