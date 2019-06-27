@@ -4,9 +4,6 @@ const redisClient = redis.createClient(6379, 'localhost');
 
 const handleRegister = (req, res, User, bcrypt) => {
   const { email, password } = req.body;
-  if(!email || !password){
-    Promise.reject('incorrect form submission');
-  }
   const hash = bcrypt.hash(password, 10).then(hash => {
     User.findOne({email: email}, (err, user) => {
       if(user){
@@ -46,6 +43,7 @@ const signToken = (email) => {
 const setToken = (token, id) => {
   return Promise.resolve(redisClient.set(token, id));
 }
+
 
 module.exports = {
   handleRegister: handleRegister
