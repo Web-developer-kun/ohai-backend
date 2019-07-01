@@ -1,5 +1,5 @@
 const redis = require('redis')
-const redisClient = redis.createClient(6379, 'localhost');
+const redisClient = redis.createClient({host: 'redis'});
 
 const handleSignOut = (req, res) => {
   return redisClient.del(req.body.token, (err, reply) => {
