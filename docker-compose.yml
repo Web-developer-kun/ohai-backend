@@ -1,0 +1,23 @@
+version: "3.7"
+
+services:
+  ohai-backend:
+    container_name: api
+    build: ./
+    command: npm start
+    working_dir: /usr/src/ohai-backend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/ohai-backend
+      - /usr/src/ohai-backend/node_modules/
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
