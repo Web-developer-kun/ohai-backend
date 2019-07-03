@@ -14,7 +14,17 @@ const townsquare = require("./controllers/townsquare");
 const userSchema = new mongoose.Schema({ email: String, hash: String });
 const User = mongoose.model("User", userSchema);
 
+const TsqPostSchema = new mongoose.Schema({
+  user: String,
+  message: String,
+  time: Date
+});
+const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
+
 const app = express();
+const http = require("http").createServer(app);
+const io = require("socket.io")(http);
+
 app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("Combined"));
@@ -30,10 +40,29 @@ app.post("/register", (req, res) => {
 app.get("/townsquare/:id", auth.isAuthenticated, (req, res) => {
   townsquare.getUserDetails(req, res, User);
 });
+
 app.post("/signout", (req, res) => {
   signout.handleSignOut(req, res);
 });
 
-app.listen(3000, (req, res) => {
-  console.log("Server running on port 3000");
+io.on("connection", socket => {
+  socket.on("post-message", msg => {
+    const newTsqPost = new TsqPost({
+      user: msg.user,
+      message: msg.message,
+      time: msg.time
+    });
+
+    Promise.resolve(
+      newTsqPost.save(err => {
+        if (err) return res.json(err);
+      })
+    ).then(() => {
+      socket.emit("message-received", newTsqPost);
+    });
+  });
+});
+
+http.listen(3000, () => {
+  console.log("listening on *:3000");
 });
