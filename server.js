@@ -58,7 +58,7 @@ io.on("connection", socket => {
         if (err) return res.json(err);
       })
     ).then(() => {
-      socket.emit("message-received", newTsqPost);
+      io.emit("message-received", newTsqPost);
     });
   });
 });
