@@ -10,7 +10,6 @@ const signin = require("./controllers/signin");
 const signout = require("./controllers/signout");
 const auth = require("./controllers/authorization");
 const townsquare = require("./controllers/townsquare");
-
 const userSchema = new mongoose.Schema({ email: String, hash: String });
 const User = mongoose.model("User", userSchema);
 
@@ -29,7 +28,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("Combined"));
 
-mongoose.connect("mongodb://mongodb:27017");
+mongoose.connect("mongodb://localhost:27017/ohaiDB", { useNewUrlParser: true });
 
 app.post("/signin", (req, res) => {
   signin.handleSignIn(req, res, User, bcrypt);

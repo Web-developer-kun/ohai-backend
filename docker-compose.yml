@@ -13,7 +13,7 @@ services:
       - /usr/src/ohai-backend/node_modules/
 
   redis:
-    image: redis:latest
+    image: redis:5.0.5
     ports:
       - "6379:6379"
 
