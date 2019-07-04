@@ -48,8 +48,6 @@ const signToken = email => {
 };
 
 const setToken = (token, id) => {
-  console.log(token, "TOKEN");
-  console.log(id, "ID");
   return Promise.resolve(redisClient.set(token, id));
 };
 

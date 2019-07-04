@@ -3,7 +3,6 @@ const redisClient = require("./redis").redisClient;
 
 const isAuthenticated = (req, res, next) => {
   const { authorization } = req.headers;
-  console.log(authorization, "AUTHORIZATION");
   if (!authorization) {
     res.json("Unauthorized");
   }
