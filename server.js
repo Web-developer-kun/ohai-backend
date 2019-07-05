@@ -12,12 +12,14 @@ const signin = require("./controllers/signin");
 const signout = require("./controllers/signout");
 const auth = require("./controllers/authorization");
 const townsquare = require("./controllers/townsquare");
+const sockets = require("./controllers/sockets");
 const userSchema = new mongoose.Schema({ email: String, hash: String });
 const User = mongoose.model("User", userSchema);
 
 const TsqPostSchema = new mongoose.Schema({
   user: String,
   message: String,
+  src: String,
   time: Date
 });
 const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
@@ -63,23 +65,11 @@ app.post("/signout", (req, res) => {
 
 io.on("connection", socket => {
   socket.on("post-message", msg => {
-    const newTsqPost = new TsqPost({
-      user: msg.user,
-      message: msg.message,
-      time: msg.time
-    });
-
-    Promise.resolve(
-      newTsqPost.save(err => {
-        if (err) return res.json(err);
-      })
-    ).then(() => {
-      io.emit("message-received", newTsqPost);
-    });
+    sockets.handleSendReceiveMsgPost(msg, io, TsqPost);
   });
 
   socket.on("post-image", imgpost => {
-    io.emit("image-received", imgpost);
+    sockets.handleSendReceiveImgPost(imgpost, io, TsqPost);
   });
 });
 
