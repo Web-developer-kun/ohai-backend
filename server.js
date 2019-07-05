@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -33,9 +34,9 @@ app.use(cors());
 app.use(morgan("Combined"));
 
 cloudinary.config({
-  cloud_name: "dvlvx2yz2",
-  api_key: "621965875181331",
-  api_secret: "7YuthCLF4M6rS-J3K3kPwgTH_gc"
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.API_KEY,
+  api_secret: process.env.API_SECRET
 });
 
 app.use(formData.parse());
