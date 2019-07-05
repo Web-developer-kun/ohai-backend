@@ -4,6 +4,8 @@ const cors = require("cors");
 const morgan = require("morgan");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
+const cloudinary = require("cloudinary").v2;
+const formData = require("express-form-data");
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
@@ -28,6 +30,14 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(morgan("Combined"));
 
+cloudinary.config({
+  cloud_name: "dvlvx2yz2",
+  api_key: "621965875181331",
+  api_secret: "7YuthCLF4M6rS-J3K3kPwgTH_gc"
+});
+
+app.use(formData.parse());
+
 mongoose.connect("mongodb://localhost:27017/ohaiDB", { useNewUrlParser: true });
 
 app.post("/signin", (req, res) => {
@@ -38,6 +48,13 @@ app.post("/register", (req, res) => {
 });
 app.get("/townsquare/:id", auth.isAuthenticated, (req, res) => {
   townsquare.getUserDetails(req, res, User);
+});
+
+app.post("/image-upload", (req, res) => {
+  const values = Object.values(req.files);
+  const promises = values.map(image => cloudinary.uploader.upload(image.path));
+
+  Promise.all(promises).then(results => res.json(results));
 });
 
 app.post("/signout", (req, res) => {
