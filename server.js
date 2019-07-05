@@ -77,6 +77,10 @@ io.on("connection", socket => {
       io.emit("message-received", newTsqPost);
     });
   });
+
+  socket.on("post-image", imgpost => {
+    io.emit("image-received", imgpost);
+  });
 });
 
 http.listen(3000, () => {
