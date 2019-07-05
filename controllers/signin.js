@@ -53,7 +53,7 @@ const createSessions = user => {
 
 const signToken = email => {
   const jwtPayload = { email };
-  return jwt.sign(jwtPayload, "JWT-SECRET", { expiresIn: "2 days" });
+  return jwt.sign(jwtPayload, process.env.JWT_SECRET, { expiresIn: "2 days" });
 };
 
 const setToken = (token, id) => {
