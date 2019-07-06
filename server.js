@@ -14,6 +14,8 @@ const signout = require("./controllers/signout");
 const auth = require("./controllers/authorization");
 const townsquare = require("./controllers/townsquare");
 const sockets = require("./controllers/sockets");
+const autoMod = require("./controllers/autoMod");
+
 const userSchema = new mongoose.Schema({ email: String, hash: String });
 const User = mongoose.model("User", userSchema);
 
@@ -56,8 +58,11 @@ app.get("/townsquare/:id", auth.isAuthenticated, (req, res) => {
 app.post("/image-upload", (req, res) => {
   const values = Object.values(req.files);
   const promises = values.map(image => cloudinary.uploader.upload(image.path));
-
   Promise.all(promises).then(results => res.json(results));
+});
+
+app.post("/image-scan", auth.isAuthenticated, (req, res) => {
+  autoMod.handleApiCall(req, res);
 });
 
 app.post("/signout", (req, res) => {
