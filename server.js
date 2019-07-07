@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 const formData = require("express-form-data");
+const _ = require("lodash");
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
@@ -70,6 +71,18 @@ app.post("/signout", (req, res) => {
 });
 
 io.on("connection", socket => {
+  socket.on("add-user", username => {
+    socket.username = username;
+    const onlineSIDs = [];
+    _.forIn(io.sockets.sockets, (value, key) => {
+      let sid = {
+        sid: key,
+        username: io.sockets.sockets[key].username
+      };
+      onlineSIDs.push(sid);
+    });
+    io.emit("receive-connected-sockets", onlineSIDs);
+  });
   socket.on("post-message", msg => {
     sockets.handleSendReceiveMsgPost(msg, io, TsqPost);
   });
