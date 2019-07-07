@@ -7,6 +7,7 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 const formData = require("express-form-data");
+const _ = require("lodash");
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
@@ -23,6 +24,7 @@ const TsqPostSchema = new mongoose.Schema({
   user: String,
   message: String,
   src: String,
+  sid: String,
   time: Date
 });
 const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
@@ -70,6 +72,37 @@ app.post("/signout", (req, res) => {
 });
 
 io.on("connection", socket => {
+  socket.on("add-user", username => {
+    socket.username = username;
+    const onlineSIDs = [];
+    _.forIn(io.sockets.sockets, (value, key) => {
+      let sid = {
+        sid: key,
+        username: io.sockets.sockets[key].username
+      };
+      onlineSIDs.push(sid);
+    });
+    io.emit("receive-connected-sockets", onlineSIDs);
+  });
+
+  socket.on("send-private-message", pvtMsg => {
+    const newTsqPost = new TsqPost({
+      user: pvtMsg.user,
+      message: pvtMsg.message,
+      src: "",
+      sid: pvtMsg.sid,
+      time: pvtMsg.time
+    });
+
+    Promise.resolve(
+      newTsqPost.save(err => {
+        if (err) return res.json(err);
+      })
+    ).then(() => {
+      io.to(newTsqPost.sid).emit("receive-private-message", newTsqPost);
+      io.to(socket.id).emit("receive-private-message", newTsqPost);
+    });
+  });
   socket.on("post-message", msg => {
     sockets.handleSendReceiveMsgPost(msg, io, TsqPost);
   });
