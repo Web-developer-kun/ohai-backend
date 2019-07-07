@@ -24,6 +24,7 @@ const TsqPostSchema = new mongoose.Schema({
   user: String,
   message: String,
   src: String,
+  sid: String,
   time: Date
 });
 const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
@@ -82,6 +83,25 @@ io.on("connection", socket => {
       onlineSIDs.push(sid);
     });
     io.emit("receive-connected-sockets", onlineSIDs);
+  });
+
+  socket.on("send-private-message", pvtMsg => {
+    const newTsqPost = new TsqPost({
+      user: pvtMsg.user,
+      message: pvtMsg.message,
+      src: "",
+      sid: pvtMsg.sid,
+      time: pvtMsg.time
+    });
+
+    Promise.resolve(
+      newTsqPost.save(err => {
+        if (err) return res.json(err);
+      })
+    ).then(() => {
+      io.to(newTsqPost.sid).emit("receive-private-message", newTsqPost);
+      io.to(socket.id).emit("receive-private-message", newTsqPost);
+    });
   });
   socket.on("post-message", msg => {
     sockets.handleSendReceiveMsgPost(msg, io, TsqPost);

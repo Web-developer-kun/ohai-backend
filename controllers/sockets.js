@@ -3,6 +3,7 @@ const handleSendReceiveMsgPost = (msg, io, TsqPost) => {
     user: msg.user,
     message: msg.message,
     src: "",
+    sid: "",
     time: msg.time
   });
 
@@ -20,6 +21,7 @@ const handleSendReceiveImgPost = (imgpost, io, TsqPost) => {
     user: imgpost.user,
     message: "",
     src: imgpost.src,
+    sid: "",
     time: imgpost.time
   });
 
