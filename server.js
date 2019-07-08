@@ -103,6 +103,15 @@ io.on("connection", socket => {
       io.to(socket.id).emit("receive-private-message", newTsqPost);
     });
   });
+
+  socket.on("typing", user => {
+    io.emit("user-typing", user);
+  });
+
+  socket.on("stopped-typing", user => {
+    io.emit("user-stopped-typing", user);
+  });
+
   socket.on("post-message", msg => {
     sockets.handleSendReceiveMsgPost(msg, io, TsqPost);
   });
