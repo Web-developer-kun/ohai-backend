@@ -7,7 +7,6 @@ const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
 const formData = require("express-form-data");
-const _ = require("lodash");
 
 const register = require("./controllers/register");
 const signin = require("./controllers/signin");
@@ -16,6 +15,7 @@ const auth = require("./controllers/authorization");
 const townsquare = require("./controllers/townsquare");
 const sockets = require("./controllers/sockets");
 const autoMod = require("./controllers/autoMod");
+const uploadImage = require("./controllers/uploadImage");
 
 const userSchema = new mongoose.Schema({ email: String, hash: String });
 const User = mongoose.model("User", userSchema);
@@ -58,12 +58,10 @@ app.get("/townsquare/:id", auth.isAuthenticated, (req, res) => {
 });
 
 app.post("/image-upload", (req, res) => {
-  const values = Object.values(req.files);
-  const promises = values.map(image => cloudinary.uploader.upload(image.path));
-  Promise.all(promises).then(results => res.json(results));
+  uploadImage.handleUploadImage(req, res, cloudinary);
 });
 
-app.post("/image-scan", auth.isAuthenticated, (req, res) => {
+app.post("/image-scan", (req, res) => {
   autoMod.handleApiCall(req, res);
 });
 
@@ -73,36 +71,21 @@ app.post("/signout", (req, res) => {
 
 io.on("connection", socket => {
   socket.on("add-user", username => {
-    socket.username = username;
-    const onlineSIDs = [];
-    _.forIn(io.sockets.sockets, (value, key) => {
-      let sid = {
-        sid: key,
-        username: io.sockets.sockets[key].username
-      };
-      onlineSIDs.push(sid);
-    });
-    io.emit("receive-connected-sockets", onlineSIDs);
+    sockets.handleNewUser(username, io, socket);
   });
 
   socket.on("send-private-message", pvtMsg => {
-    const newTsqPost = new TsqPost({
-      user: pvtMsg.user,
-      message: pvtMsg.message,
-      src: "",
-      sid: pvtMsg.sid,
-      time: pvtMsg.time
-    });
-
-    Promise.resolve(
-      newTsqPost.save(err => {
-        if (err) return res.json(err);
-      })
-    ).then(() => {
-      io.to(newTsqPost.sid).emit("receive-private-message", newTsqPost);
-      io.to(socket.id).emit("receive-private-message", newTsqPost);
-    });
+    sockets.handleSendReceivePvtMsg(pvtMsg, io, socket, TsqPost);
   });
+
+  socket.on("typing", user => {
+    io.emit("user-typing", user);
+  });
+
+  socket.on("stopped-typing", user => {
+    io.emit("user-stopped-typing", user);
+  });
+
   socket.on("post-message", msg => {
     sockets.handleSendReceiveMsgPost(msg, io, TsqPost);
   });
