@@ -93,6 +93,10 @@ io.on("connection", socket => {
   socket.on("post-image", imgpost => {
     sockets.handleSendReceiveImgPost(imgpost, io, TsqPost);
   });
+
+  socket.on("disconnect", () => {
+    socket.disconnect();
+  });
 });
 
 http.listen(3000, () => {
