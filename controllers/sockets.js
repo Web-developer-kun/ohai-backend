@@ -50,8 +50,21 @@ const handleNewUser = (username, io, socket) => {
   io.emit("receive-connected-sockets", onlineSIDs);
 };
 
+const handleDisconnect = io => {
+  const onlineSIDs = [];
+  _.forIn(io.sockets.sockets, (value, key) => {
+    let sid = {
+      sid: key,
+      username: io.sockets.sockets[key].username
+    };
+    onlineSIDs.push(sid);
+  });
+  io.emit("receive-connected-sockets", onlineSIDs);
+};
+
 module.exports = {
   handleSendReceiveMsgPost,
   handleSendReceivePvtMsg,
+  handleDisconnect,
   handleNewUser
 };

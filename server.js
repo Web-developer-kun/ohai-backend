@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
-const morgan = require("morgan");
 const bcrypt = require("bcrypt");
 const mongoose = require("mongoose");
 const cloudinary = require("cloudinary").v2;
@@ -35,7 +34,6 @@ const io = require("socket.io")(http);
 
 app.use(bodyParser.json());
 app.use(cors());
-app.use(morgan("Combined"));
 
 cloudinary.config({
   cloud_name: process.env.CLOUD_NAME,
@@ -92,6 +90,10 @@ io.on("connection", socket => {
 
   socket.on("post-image", imgpost => {
     sockets.handleSendReceiveImgPost(imgpost, io, TsqPost);
+  });
+
+  socket.on("disconnect", () => {
+    sockets.handleDisconnect(io);
   });
 });
 
