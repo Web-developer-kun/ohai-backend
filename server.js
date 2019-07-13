@@ -92,6 +92,10 @@ io.on("connection", socket => {
     sockets.handleSendReceiveImgPost(imgpost, io, TsqPost);
   });
 
+  socket.on("sign-out", () => {
+    socket.disconnect();
+  });
+
   socket.on("disconnect", () => {
     sockets.handleDisconnect(io);
   });
