@@ -38,6 +38,12 @@ const handleSendReceivePvtMsg = (pvtMsg, io, socket, TsqPost) => {
 };
 
 const handleNewUser = (username, io, socket) => {
+  _.forIn(io.sockets.sockets, (value, key) => {
+    if (io.sockets.sockets[key].username == username) {
+      io.to(key).emit("duplicate-login");
+    }
+  });
+
   socket.username = username;
   const onlineSIDs = [];
   _.forIn(io.sockets.sockets, (value, key) => {
