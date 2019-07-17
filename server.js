@@ -24,7 +24,10 @@ const TsqPostSchema = new mongoose.Schema({
   message: String,
   src: String,
   sid: String,
-  time: Date
+  time: Date,
+  rgb: String,
+  from: String,
+  to: String
 });
 const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
 
