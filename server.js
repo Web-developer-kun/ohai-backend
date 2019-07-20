@@ -46,9 +46,7 @@ cloudinary.config({
 
 app.use(formData.parse());
 
-mongoose.connect(process.env.MONGODB_CLUSTER, {
-  useNewUrlParser: true
-});
+mongoose.connect("mongodb://localhost:27017/ohaiDB", { useNewUrlParser: true });
 
 app.post("/signin", (req, res) => {
   signin.handleSignIn(req, res, User, bcrypt);
@@ -106,11 +104,6 @@ io.on("connection", socket => {
   });
 });
 
-let port = process.env.PORT;
-if (port == null || port == "") {
-  port = 3000;
-}
-
-http.listen(port, () => {
+http.listen(3000, () => {
   console.log("listening on *:3000");
 });
