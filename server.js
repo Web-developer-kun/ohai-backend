@@ -46,7 +46,7 @@ cloudinary.config({
 
 app.use(formData.parse());
 
-mongoose.connect("mongodb://localhost:27017/ohaiDB", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_CLUSTER, { useNewUrlParser: true });
 
 app.post("/signin", (req, res) => {
   signin.handleSignIn(req, res, User, bcrypt);
