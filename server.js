@@ -48,6 +48,10 @@ app.use(formData.parse());
 
 mongoose.connect(process.env.MONGODB_CLUSTER, { useNewUrlParser: true });
 
+app.get("/", (req, res) => {
+  res.send("This is the API for PingIM");
+});
+
 app.post("/signin", (req, res) => {
   signin.handleSignIn(req, res, User, bcrypt);
 });
