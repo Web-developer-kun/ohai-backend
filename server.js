@@ -24,7 +24,10 @@ const TsqPostSchema = new mongoose.Schema({
   message: String,
   src: String,
   sid: String,
-  time: Date
+  time: Date,
+  rgb: String,
+  from: String,
+  to: String
 });
 const TsqPost = mongoose.model("TsqPost", TsqPostSchema);
 
@@ -43,7 +46,9 @@ cloudinary.config({
 
 app.use(formData.parse());
 
-mongoose.connect("mongodb://localhost:27017/ohaiDB", { useNewUrlParser: true });
+mongoose.connect(process.env.MONGODB_CLUSTER, {
+  useNewUrlParser: true
+});
 
 app.post("/signin", (req, res) => {
   signin.handleSignIn(req, res, User, bcrypt);
@@ -101,6 +106,11 @@ io.on("connection", socket => {
   });
 });
 
-http.listen(3000, () => {
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
+http.listen(port, () => {
   console.log("listening on *:3000");
 });

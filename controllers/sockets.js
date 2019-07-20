@@ -6,7 +6,8 @@ const handleSendReceiveMsgPost = (msg, io, TsqPost) => {
     message: msg.message,
     src: msg.src,
     sid: "",
-    time: msg.time
+    time: msg.time,
+    rgb: msg.rgb
   });
 
   Promise.resolve(
@@ -20,7 +21,8 @@ const handleSendReceiveMsgPost = (msg, io, TsqPost) => {
 
 const handleSendReceivePvtMsg = (pvtMsg, io, socket, TsqPost) => {
   const newTsqPost = new TsqPost({
-    user: pvtMsg.user,
+    from: pvtMsg.from,
+    to: pvtMsg.to,
     message: pvtMsg.message,
     src: pvtMsg.src,
     sid: pvtMsg.sid,
